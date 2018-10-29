@@ -10,7 +10,12 @@ var User = require('../controllers/user_cont');
 	app.post('/register', User.register);
 	app.post('/resend_confirmation', User.resend_confirmation);
 
+	app.post('/recover_password', User.recover_password);
+	app.post('/new_password', User.change_password);
+
 	app.get('/confirm_email/:tken', User.confirm_account);
+
+
 
 
 

@@ -248,6 +248,56 @@ const controllers = {
 		}
 
 	},
+	recover_password: (req, res, next) => {
+		// send verification email here
+		if (req.body.email) {
+			var token = bcrypt.hashSync(shortid.generate()).replace(/[^\w]/g, "");
+	    	User.findOne({ email: req.body.email }, (err, rsendUser) => {
+				if (rsendUser) {
+					var token_url = mail_url + '/change-password/' + token;
+					rsendUser.verificationToken = token;
+					// send verification email here
+					
+						// var body = {
+						// 	message: "Please click this link to verify your account. \n" + token_url,
+						// 	phone: rsendUser.phone
+						// }
+						// util.send_sms(body);
+						var dataz = {
+							email: req.body.email,
+							firstName: req.body.firstName,
+							lastName: req.body.lastName,
+							template: 'reset_email',
+							subject: "Password Recovery Request",
+							url: token_url
+						}
+						util.Email(dataz);
+						rsendUser.save();
+					req.responseBody = {
+						success: true,
+				        message: 'Recovery Token Sent',
+					}
+					util.goodRequest(req, res, next);
+					return;
+				} else {
+					req.responseBody = {
+						success: false,
+				        message: 'User Does not exist',
+					}
+					util.badRequest(req, res, next);
+					return;
+				}
+	    	})
+		} else {
+	    	req.responseBody = {
+				success: false,
+				message: 'User Email Required',
+			}
+			util.badRequest(req, res, next);
+			return;
+		}
+
+	},
 	confirm_account: (req, res, next) => {
 		var tken = req.params.tken;
 		User.findOne({ verificationToken: tken }, (err, uder) => {
@@ -271,6 +321,34 @@ const controllers = {
 				return res.send({
 					success: true,
 					message: 'Account Has Been Verified'
+				});
+			}
+		})
+	},
+
+	change_password: (req, res, next) => {
+		var tken = req.body.token;
+		User.findOne({ verificationToken: tken }, (err, uder) => {
+			if (err) {
+				req.responseBody = {
+					success: false,
+					message: 'Token not found',
+				}
+				util.badRequest(req, res, next);
+				return;
+			}
+			if (!uder) {
+				return res.send({
+					success: false,
+					message: 'This Account Was Not Found'
+				});
+			} else {
+				uder.verificationToken = "";
+				uder.password = bcrypt.hashSync(req.body.password);
+				uder.save();
+				return res.send({
+					success: true,
+					message: 'Password Changed'
 				});
 			}
 		})
