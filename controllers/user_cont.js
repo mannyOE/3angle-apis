@@ -36,7 +36,7 @@ const controllers = {
 				util.badRequest(req, res, next);
 				return;
 			}
-		    if (!user) {
+		    if (user === null) {
 				req.responseBody = {
 					success: false,
 					message: 'Email or password incorrect'
@@ -55,10 +55,12 @@ const controllers = {
 					}
 					bcrypt.compare(req.body.password, user.password, function (err, crypt) {
 						if (crypt != true) {
-							return res.status(404).send({
+							req.responseBody = {
 								success: false,
 								message: 'Password incorrect'
-							});
+							}
+							util.badRequest(req, res, next);
+							return;
 						} else {
 							var payload = {
 								_id: user._id,
@@ -177,19 +179,20 @@ const controllers = {
 		if (req.body.password) {
 			req.body.password = bcrypt.hashSync(req.body.password);
 		}
-		if(req.body.image !== undefined || req.body.image.length>0){
+		if((req.body.image !== undefined)&&(req.body.title!==undefined)&&(req.body.company!==undefined)){
 			req.body.enabled = true;
 		}
-		User.findByIdAndUpdate(req.params.id, { $set: req.body }, function (err, uder) {
+		User.findByIdAndUpdate(req.decoded._id, { $set: req.body }, function (err, uder) {
 		    if (err) {
 				req.responseBody = {
 					success: false,
 					message: 'User not found',
+					err: err,
 				}
 				util.badRequest(req, res, next);
 				return;
 		    }
-		    User.findById(req.params.id, function (err, apprmanager) {
+		    User.findById(req.decoded._id, function (err, apprmanager) {
 				res.json({
 					success: true,
 					message: 'User has been succesfully updated.',
@@ -328,6 +331,7 @@ const controllers = {
 
 	change_password: (req, res, next) => {
 		var tken = req.body.token;
+		console.log(req.body.password);
 		User.findOne({ verificationToken: tken }, (err, uder) => {
 			if (err) {
 				req.responseBody = {
@@ -350,6 +354,47 @@ const controllers = {
 					success: true,
 					message: 'Password Changed'
 				});
+			}
+		})
+	},
+
+
+	new_password: (req, res, next) => {
+		var user = req.decoded.user.email;
+		User.findOne({ email: user }, (err, uder) => {
+			if (err) {
+				req.responseBody = {
+					success: false,
+					message: 'User not found',
+				}
+				util.badRequest(req, res, next);
+				return;
+			}
+			if (!uder) {
+				return res.send({
+					success: false,
+					message: 'This Account Was Not Found'
+				});
+			} else {
+				bcrypt.compare(req.body.old, uder.password, function (err, crypt) {
+						if (crypt != true) {
+							req.responseBody = {
+								success: false,
+								message: 'Old Password incorrect',
+							}
+							util.badRequest(req, res, next);
+							return;
+						} else {
+							console.log(req.body.new);
+							uder.password = bcrypt.hashSync(req.body.new);
+							uder.save();
+							return res.send({
+								success: true,
+								message: 'Password Changed'
+							});							
+						}
+					})
+				
 			}
 		})
 	},

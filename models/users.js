@@ -35,6 +35,8 @@ var users = new Schema({
 	    required: [true, 'Password is required'],
 	    minLength: 4
 	},
+	title: {type: String},
+	company: String,
 
 });
 

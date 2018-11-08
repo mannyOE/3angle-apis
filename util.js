@@ -6,8 +6,8 @@ var tor = "We Love Triangoolate V_1.0.0";
 app.use(bodyParser.json());
 var jwt = require('jsonwebtoken');
 var Request = require('request-promise');
-
-
+var shortid = require('shortid');
+var User = require(__base+'models/users');
 
 
 
@@ -31,7 +31,7 @@ module.exports = {
                 message: 'User does not exist.'
               });
             }
-            req.role = user.role;
+            req.decoded.user = user;
             
             next();
 
@@ -124,6 +124,54 @@ module.exports = {
         }
       });
     });
+  },
+
+
+  uploadProfile:function(request, response, next){
+    var image = request.files.file;
+    var old = request.headers['old'];
+    console.log(old);
+         if (!fs.existsSync("./public/contents/profiles")) {
+            fs.mkdir("./public/contents/profiles", function (err) {
+                if (err) {
+                    return console.log('failed to write directory', err);
+                }
+            });
+          }
+          if(old!==undefined){
+            if(fs.existsSync("./public/"+old)){
+                fs.unlink("./public/"+old, function(error) {
+                    if (error) {
+                        throw error;
+                    }
+                });
+            }
+        }
+         // console.log(image)
+         var x = image.name.split(".");
+         var ext = x[x.length - 1];
+         var id = shortid.generate();
+         var file = new Date().getTime() + "-" + id + "." + ext;
+         var rename = './public/contents/profiles/' + file;
+         image.mv(rename, function (errFile) {
+          console.log(errFile)
+          User.findById(request.decoded._id, function (err, user) {
+            if (err || user === null) {
+              next()
+            } else {
+              request.uploaded = {
+                file: file,
+                image: 'contents/profiles/'+file,
+                id: id
+              };
+              delete request.body;
+              request.body = user;
+              request.body.image = 'contents/profiles/'+file;
+              console.log('upload complete', request.body)
+              next(); 
+            }
+          });
+         });
   },
 
   secret: tor,

@@ -5,6 +5,7 @@ app.use(bodyParser.json());
 
 var User = require('../controllers/user_cont');
 
+
 	// login apis
 	app.post('/login', User.login);
 	app.post('/register', User.register);
@@ -13,7 +14,13 @@ var User = require('../controllers/user_cont');
 	app.post('/recover_password', User.recover_password);
 	app.post('/new_password', User.change_password);
 
+	app.post('/change_password',util.isLoggedIn, User.new_password);
+
+	app.post('/upload_profile',util.isLoggedIn,util.uploadProfile, User.updateUser);
+	app.post('/update',util.isLoggedIn, User.updateUser);
+
 	app.get('/confirm_email/:tken', User.confirm_account);
+
 
 
 

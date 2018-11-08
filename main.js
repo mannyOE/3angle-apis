@@ -23,15 +23,20 @@ global.util = require('./util');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(fileUpload());
+app.use(express.static('public'))
 
 // load routes files here
 var users = require('./routes/user_routes');
+var Listings = require('./routes/listing_routes');
 
 
 
 
 // set routes here
 app.use('/api/users', users);
+
+app.use('/api/listings', Listings);
 
 
 app.engine('html', handlebars({defaultLayout: 'main', extname: ".html",layoutsDir: __dirname + '/view/main'}));
