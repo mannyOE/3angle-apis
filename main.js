@@ -24,7 +24,7 @@ global.util = require('./util');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(fileUpload());
-app.use(express.static('public'))
+app.use(express.static('public'));
 
 // load routes files here
 var users = require('./routes/user_routes');

@@ -9,6 +9,7 @@ var listings = new Schema({
 	    type: Boolean,
 	    default: true
 	},
+	image: String,
 	
 
 });
