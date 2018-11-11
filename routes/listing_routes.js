@@ -12,6 +12,10 @@ var Listing = require('../controllers/listing_cont');
 	app.get('/latest', Listing.latest_listing);
 
 
+	app.post('/upload_photos', util.uploadItemImage)
+	app.post('/remove-unused-files', Listing.unusedFiles)
+
+	app.post('/create-item', util.isLoggedIn, Listing.createListing)
 
 
 

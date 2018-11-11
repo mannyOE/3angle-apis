@@ -127,6 +127,35 @@ module.exports = {
   },
 
 
+  uploadItemImage:function(request, response, next){
+    var image = request.files.file;
+         if (!fs.existsSync("./public/contents/listings")) {
+            fs.mkdir("./public/contents/listings", function (err) {
+                if (err) {
+                    return console.log('failed to write directory', err);
+                }
+            });
+          }
+         // console.log(image)
+         var x = image.name.split(".");
+         var ext = x[x.length - 1];
+         var id = shortid.generate();
+         var file = new Date().getTime() + "-" + id + "." + ext;
+         var rename = './public/contents/listings/' + file;
+         image.mv(rename, function (errFile) {
+          console.log(errFile)
+            if(!errFile){
+              response.json({
+                upload: {
+                  image: 'contents/listings/'+file,
+                  center: false,
+                }
+              })
+            }
+         });
+  },
+
+
   uploadProfile:function(request, response, next){
     var image = request.files.file;
     var old = request.headers['old'];

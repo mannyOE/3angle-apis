@@ -53,6 +53,7 @@ const controllers = {
 						util.badRequest(req, res, next);
 						return;
 					}
+
 					bcrypt.compare(req.body.password, user.password, function (err, crypt) {
 						if (crypt != true) {
 							req.responseBody = {
@@ -136,7 +137,7 @@ const controllers = {
 			email: req.body.email.toLowerCase(),
 			phone: req.body.phone,
 			password: bcrypt.hashSync(req.body.password),
-			Id: shortid.generate(),
+			Id: new Date().getTime(),
 			verificationToken: token,
 		}
 		);

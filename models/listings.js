@@ -2,6 +2,8 @@
 var mongoose = require('mongoose');
 var bcrypt   = require('bcrypt-nodejs');
 var Schema = mongoose.Schema;
+var mongoosePaginate = require('mongoose-paginate-v2');
+
 
 var listings = new Schema({
 	Id: {type:String, required: true},
@@ -9,9 +11,32 @@ var listings = new Schema({
 	    type: Boolean,
 	    default: true
 	},
-	
+	featured: {
+	    type: Boolean,
+	    default: false
+	},
+	images: [],
+	agent: String,
+	location: String,
+	category: String,
+	appartmentType: String,
+	cost: String,
+	description: String,
+	latitude: String,
+	longitude: String,
+	views: {
+		type: Number,
+		default: 0
+	},
+	requests: {
+		type: Number,
+		default: 0
+	},
+	date_created: Number,
+
+
 
 });
-
+listings.plugin(mongoosePaginate);
 
 module.exports = mongoose.model('listings', listings);
