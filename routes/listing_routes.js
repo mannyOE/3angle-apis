@@ -7,7 +7,7 @@ var Listing = require('../controllers/listing_cont');
 
 	// login apis
 	
-
+	app.get('/', Listing.all_listing);
 	app.get('/all', Listing.all_listing);
 	app.get('/latest', Listing.latest_listing);
 
@@ -17,6 +17,8 @@ var Listing = require('../controllers/listing_cont');
 
 	app.post('/create-item', util.isLoggedIn, Listing.createListing)
 
+
+	app.get('/my-listings', util.isLoggedIn, Listing.all_my_listings);
 
 
 module.exports = app;

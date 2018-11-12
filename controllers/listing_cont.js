@@ -11,22 +11,40 @@ const controllers = {
 	
 
 	all_listing: (req, res, next) => {
-		Listing.find({}, (error, listings)=>{
-			if(error){
-				req.responseBody = {
-					success: false,
-					message: 'Failed to fetch listings',
-				}
-				util.badRequest(req, res, next);
-				return;
-			}else{
-				return res.status(200).send({
-					success: true,
-					message: 'listings fetched Successfully',
-					result: listings
-				});
-			}
-		})
+	var options = {}, query = {};
+		if(req.query.latest==='true'){
+			options.sort = {date_created: -1};
+			options.limit = 21;
+		}
+		Listing.paginate(query, options).then(function(result) {
+			return res.status(200).send({
+				success: true,
+				message: 'listings fetched Successfully',
+				result: result.docs
+			});
+		}).catch(error=>{
+			return res.status(200).send({
+				success: false,
+				message: error,
+			});
+		});
+	},
+
+	all_my_listings:(req, res, next)=>{
+		var query = {agent: req.decoded.Id, category: req.query.category};
+		var options = {page: req.query.page, limit: 6, sort: {date_created: -1}};
+		Listing.paginate(query, options).then(function(result) {
+			return res.status(200).send({
+				success: true,
+				message: 'My listings fetched Successfully',
+				result: result
+			});
+		}).catch(error=>{
+			return res.status(200).send({
+				success: false,
+				message: error,
+			});
+		});
 	},
 
 
@@ -74,19 +92,17 @@ const controllers = {
 		})
 	},
 	latest_listing: (req, res, next) => {
-		Listing.paginate({}, {sort: '-date_created'}).then((error, listings)=>{
-			if(!error){
-				return res.status(200).send({
-					success: true,
-					message: 'listings fetched Successfully',
-					result: listings
-				});
-			}else{
-				return res.status(200).send({
-					success: false,
-					message: error,
-				});
-			}
+		Listing.paginate({}, { sort: {date_created: -1}, limit: 9 }).then(function(result) {
+			return res.status(200).send({
+				success: true,
+				message: 'listings fetched Successfully',
+				result: result.docs
+			});
+		}).catch(error=>{
+			return res.status(200).send({
+				success: false,
+				message: error,
+			});
 		});
 	},
 

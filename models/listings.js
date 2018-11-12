@@ -2,7 +2,7 @@
 var mongoose = require('mongoose');
 var bcrypt   = require('bcrypt-nodejs');
 var Schema = mongoose.Schema;
-var mongoosePaginate = require('mongoose-paginate-v2');
+var mongoosePaginate = require('mongoose-paginate');
 
 
 var listings = new Schema({
@@ -16,7 +16,10 @@ var listings = new Schema({
 	    default: false
 	},
 	images: [],
+	title: String,
 	agent: String,
+	agentName: String,
+	state: String,
 	location: String,
 	category: String,
 	appartmentType: String,
